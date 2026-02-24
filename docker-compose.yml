@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  app:
+    build: .
+    container_name: node-mnj
+    env_file: .env
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo
+      - rabbitmq
+    restart: always
+
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: mydb
+    restart: always
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"    # Messaging port
+      - "15672:15672"  # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: always
